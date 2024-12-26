@@ -248,7 +248,7 @@ try:
         file.write(output)
 
     print(f"Data saved to {file_name}")
-    file_path = get_current_directory() + "/" + "mapnocc_customer_ops_buddy.sh"
+    file_path = get_current_directory() + "/" + "mapnocc_customer_ops_duty.sh"
     process = subprocess.Popen([file_path,  sys.argv[3]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     for line in process.stdout:
         print(str(line.strip()))
