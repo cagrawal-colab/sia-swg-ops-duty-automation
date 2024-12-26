@@ -4,11 +4,18 @@ import subprocess
 import pandas as pd
 from io import StringIO
 import time
+
 import glob
+
+def get_current_directory():
+    result = subprocess.run(['pwd'], capture_output=True, text=True)
+    return result.stdout.strip()
+
 
 def get_latest_kubeconfig():
     # Directory to search in
-    directory = os.path.expanduser("~/Code")
+    current_directory = get_current_directory()
+    directory = os.path.expanduser(current_directory)
     
     # Pattern to match files with the substring
     pattern = os.path.join(directory, "lke-colab-prod-kubeconfig*.yaml")
@@ -23,8 +30,10 @@ def get_latest_kubeconfig():
     latest_file = max(files, key=os.path.getmtime)
     return latest_file
 
-if len(sys.argv)<3:
-    print("Usage: python ops_duty_script.py <epoch_start_timestamp> <epoch_end_timestamp>")
+
+### Example - python3 ops_duty_script.py 1734892200 1734978600 FARSIGHT-61479
+if len(sys.argv)<4:
+    print("Usage: python ops_duty_script.py <epoch_start_timestamp> <epoch_end_timestamp> <FARSIGHT-TICKET>")
     sys.exit(1)
 # Expand home directory for KUBECONFIG
 
@@ -239,7 +248,13 @@ try:
         file.write(output)
 
     print(f"Data saved to {file_name}")
-
+    file_path = get_current_directory() + "/" + "mapnocc_ops_buddy.sh"
+    process = subprocess.Popen([file_path,  sys.argv[3]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    for line in process.stdout:
+        print(str(line.strip()))
+    returncode = process.wait()
+    print(f"Process ended with the return code of {returncode}.")
+    
 except subprocess.CalledProcessError as e:
     print("Error executing query:")
     print(e.stderr)
